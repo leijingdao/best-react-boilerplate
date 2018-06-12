@@ -9,6 +9,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 const env = require('../config/prod.env');
 const webpackConfig = merge(baseWebpackConfig, {
@@ -26,6 +27,10 @@ const webpackConfig = merge(baseWebpackConfig, {
     chunkFilename: utils.assetsPath('js/[id].[chunkhash].js')
   },
   plugins: [
+    new CleanWebpackPlugin(['*.*'],{
+      root:path.join(__dirname,'..','dist'),
+      verbose:true
+    }),
     new webpack.DefinePlugin({
       'process.env': env
     }),
@@ -78,6 +83,7 @@ const webpackConfig = merge(baseWebpackConfig, {
     // split vendor js into its own file
     new webpack.optimize.CommonsChunkPlugin({
       name: 'vendor',
+      filename: 'vendor.[hash:8].js',
       minChunks (module) {
         // any required modules inside node_modules are extracted to vendor
         return (

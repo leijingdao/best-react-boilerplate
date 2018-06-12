@@ -1,0 +1,29 @@
+.App {
+  background-color: bisque;
+  height: 300px;
+  :global {
+    .a {
+      width: 100px;
+      height: 200px;
+      background-color: aqua;
+    }
+  }
+}
+
+.list {
+  background-color: burlywood;
+  :local {
+    .b {
+      width: 100px;
+      height: 100px;
+    }
+  }
+}
+
+.a {
+  background-color: burlywood;
+  .b{
+    height: 100px;
+    width: 100px;
+  }
+}
