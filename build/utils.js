@@ -5,22 +5,43 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const packageConfig = require('../package.json')
 
 exports.assetsPath = function (_path) {
-  const assetsSubDirectory = process.env.NODE_ENV === 'production'
-    ? config.build.assetsSubDirectory
-    : config.dev.assetsSubDirectory
+  const assetsSubDirectory = process.env.NODE_ENV === 'production' ?
+    config.build.assetsSubDirectory :
+    config.dev.assetsSubDirectory
 
   return path.posix.join(assetsSubDirectory, _path)
 }
 
-exports.cssLoaders = function (options) {
+exports.cssLoaders = function (options, useModules) {
   options = options || {}
+  let cssLoader = {};
+  // console.log(useModules);
 
-  const cssLoader = {
-    loader: 'css-loader',
-    options: {
-      sourceMap: options.sourceMap,
-      modules:true,
-      localIdentName:'[local]-[hash:base64:5]'
+
+  // cssLoader = {
+  //   loader: 'css-loader',
+  //   options: {
+  //     sourceMap: options.sourceMap,
+  //     modules: true,
+  //     localIdentName: '[local]--[hash:base64:5]'
+  //   }
+  // }
+
+  if (useModules) {
+    cssLoader = {
+      loader: 'css-loader',
+      options: {
+        sourceMap: options.sourceMap,
+        modules: true,
+        localIdentName: '[local]-[hash:base64:5]'
+      }
+    }
+  } else {
+    cssLoader = {
+      loader: 'css-loader',
+      options: {
+        sourceMap: options.sourceMap,
+      }
     }
   }
 
@@ -32,7 +53,7 @@ exports.cssLoaders = function (options) {
   }
 
   // generate loader string to be used with extract text plugin
-  function generateLoaders (loader, loaderOptions) {
+  function generateLoaders(loader, loaderOptions) {
     const loaders = options.usePostCSS ? [cssLoader, postcssLoader] : [cssLoader]
 
     if (loader) {
@@ -44,7 +65,9 @@ exports.cssLoaders = function (options) {
       })
     }
 
-    // Extract CSS when that option is specified
+    // console.log(loader);
+
+    // Extract CSS when that o  ption is specified
     // (which is the case during production build)
     if (options.extract) {
       return ExtractTextPlugin.extract({
@@ -56,27 +79,42 @@ exports.cssLoaders = function (options) {
     }
   }
 
-  // https://vue-loader.vuejs.org/en/configurations/extract-css.html
-  return {
+
+  let re = {
     css: generateLoaders(),
     postcss: generateLoaders(),
     less: generateLoaders('less'),
-    sass: generateLoaders('sass', { indentedSyntax: true }),
+    sass: generateLoaders('sass', {
+      indentedSyntax: true
+    }),
     scss: generateLoaders('sass'),
     stylus: generateLoaders('stylus'),
     styl: generateLoaders('stylus')
-  }
+  };
+  // console.log(re);
+  return re;
 }
 
 // Generate loaders for standalone style files (outside of .vue)
 exports.styleLoaders = function (options) {
   const output = []
-  const loaders = exports.cssLoaders(options)
+  const loaders = exports.cssLoaders(options, true)
+  const loaders1 = exports.cssLoaders(options, false)
 
-  for (const extension in loaders) {
+  for (let extension in loaders) {
     const loader = loaders[extension]
+    let reg = new RegExp(`^((?!\\.g).)*\\.` + extension + '$')
+    console.log(reg.source);
     output.push({
-      test: new RegExp('\\.' + extension + '$'),
+      test: reg,
+      use: loader
+    })
+  }
+
+  for (let extension1 in loaders1) {
+    const loader = loaders1[extension1]
+    output.push({
+      test: new RegExp(`\\.g\\.` + extension1 + '$'),
       use: loader
     })
   }
